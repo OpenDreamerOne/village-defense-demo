@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo 保卫村庄（优化版）</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧：关键机制（去掉“见表1-1”） -->
+        <div class="left-panel">
+            <h2>核心规则</h2>
+            <div class="rule">
+                <h3>1. 属性连携关系</h3>
+                <img src="image.png" alt="属性连携图" style="max-width: 220px; margin: 10px 0;">
+                <p><small>（箭头/文字对应：促进=绿色，降低=红色）</small></p>
+            </div>
+            <div class="rule">
+                <h3>2. 关键机制</h3>
+                <p>• 每轮先选属性提升，再触发损耗事件</p>
+                <p>• 粮食每轮固定扣10点</p>
+                <p>• 暴风雨前兆：下轮扣除×225%（提前预告扣除属性）</p>
+                <p>• 属性＞100触发高点数奖励（见下方）</p>
+                <p>  - 粮食＞100：下轮固定选择促进率100%、降低率0%</p>
+                <p>  - 士气＞100：下轮繁荣收益×150%</p>
+                <p>  - 舒适＞100：下轮随机选择必定是养精蓄锐</p>
+                <p>  - 秩序＞100：下轮事件扣除减半</p>
+                <p>  - 繁荣＞100：下轮所有收益×125%</p>
+            </div>
+            <div class="rule">
+                <h3>3. 胜负条件</h3>
+                <p>胜利：15轮后所有属性＞0</p>
+                <p>失败：任意属性≤0</p>
+            </div>
+        </div>
+
+        <!-- 中间：固定选择按钮（补充连携说明） -->
+        <div class="middle-panel">
+            <div class="title">保卫村庄</div>
+            <div class="round">当前轮次：第 <span id="currentRound">1</span> / 15 轮</div>
+            
+            <!-- 属性条形图（不变） -->
+            <div class="property">
+                <div class="prop-name">粮食产出（基础80）：</div>
+                <div class="prop-value" id="food-value">80</div>
+                <div class="prop-chart">
+                    <div class="chart-fill" id="food-chart"></div>
+                </div>
+            </div>
+            <div class="property">
+                <div class="prop-name">士气（基础50-70）：</div>
+                <div class="prop-value" id="morale-value">0</div>
+                <div class="prop-chart">
+                    <div class="chart-fill" id="morale-chart"></div>
+                </div>
+            </div>
+            <div class="property">
+                <div class="prop-name">舒适（基础50-70）：</div>
+                <div class="prop-value" id="comfort-value">0</div>
+                <div class="prop-chart">
+                    <div class="chart-fill" id="comfort-chart"></div>
+                </div>
+            </div>
+            <div class="property">
+                <div class="prop-name">秩序（基础50-70）：</div>
+                <div class="prop-value" id="order-value">0</div>
+                <div class="prop-chart">
+                    <div class="chart-fill" id="order-chart"></div>
+                </div>
+            </div>
+            <div class="property">
+                <div class="prop-name">繁荣（基础50-70）：</div>
+                <div class="prop-value" id="prosperity-value">0</div>
+                <div class="prop-chart">
+                    <div class="chart-fill" id="prosperity-chart"></div>
+                </div>
+            </div>
+
+            <!-- 固定选择（补充“促进/减少”说明） -->
+            <div class="choice-panel" id="choicePanel">
+                <div class="choice-title">固定选择（必选）：</div>
+                <button onclick="chooseFixed('food')">增加农田人力（粮食+40-60，60%连携增加士气，40%连携减少舒适、秩序）</button>
+                <button onclick="chooseFixed('morale')">鼓舞士气（士气+30-50，60%连携增加繁荣，40%连携减少舒适、秩序）</button>
+                <button onclick="chooseFixed('comfort')">分发消费品（舒适+30-50，60%连携增加秩序，40%连携减少繁荣）</button>
+                <button onclick="chooseFixed('order')">严格守夜（秩序+30-50，60%连携增加繁荣，40%连携减少士气）</button>
+                <button onclick="chooseFixed('prosperity')">商业活动（繁荣+30-50，60%连携促进粮食产出，无连携减少）</button>
+
+                <!-- 随机选择（修复括号说明） -->
+                <div class="choice-title">随机选择（可选，每轮仅1次）：</div>
+                <button onclick="chooseRandom()">随机事件（25%几率养精蓄锐，75%几率任意属性提升[效率120%]）</button>
+            </div>
+
+            <!-- 结算面板（不变） -->
+            <div class="result-panel" id="resultPanel" style="display: none;">
+                <div id="resultTitle"></div>
+                <button onclick="restartGame()">重新开始</button>
+            </div>
+        </div>
+
+        <!-- 右侧：日志（不变） -->
+        <div class="right-panel">
+            <h2>游戏日志</h2>
+            <div id="logContainer" class="log-container">
+                <p class="log-entry">游戏开始！第1轮即将开始</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

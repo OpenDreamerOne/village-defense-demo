@@ -1,0 +1,139 @@
+/* 三栏布局：左侧规则+中间交互+右侧日志 */
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* 左侧规则面板：固定宽度 */
+.left-panel {
+    width: 250px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+}
+
+/* 中间交互面板：自适应宽度 */
+.middle-panel {
+    flex: 1;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+/* 右侧日志面板：固定宽度 */
+.right-panel {
+    width: 300px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+}
+
+/* 标题样式 */
+.title {
+    font-size: 28px;
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* 轮次显示 */
+.round {
+    font-size: 18px;
+    color: #34495e;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* 属性条形图样式（原文档属性可视化） */
+.property {
+    margin-bottom: 20px;
+}
+.prop-name {
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+.prop-value {
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+.prop-chart {
+    height: 22px;
+    background-color: #ecf0f1;
+    border-radius: 11px;
+    overflow: hidden;
+}
+.chart-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+/* 属性状态颜色（原文档高低值逻辑） */
+.normal { background-color: #3498db; } /* 0-100：正常 */
+.high { background-color: #27ae60; }  /* >100：高值（奖励触发） */
+.low { background-color: #e74c3c; }   /* ≤0：低值（失败预警） */
+
+/* 选择按钮样式（原文档2.2选择系统） */
+.choice-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #34495e;
+    margin: 15px 0 8px;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+button:hover {
+    background-color: #2980b9;
+}
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* 日志样式（持久化记录） */
+.log-container {
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 4px;
+    border: 1px solid #ecf0f1;
+}
+.log-entry {
+    margin: 6px 0;
+    padding: 4px 0;
+    border-bottom: 1px dashed #ecf0f1;
+    font-size: 13px;
+    color: #2c3e50;
+}
+
+/* 结算面板样式 */
+.result-panel {
+    text-align: center;
+    padding: 30px;
+    background-color: #f1f8e9;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+#resultTitle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #27ae60;
+    margin-bottom: 20px;
+}
