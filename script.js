@@ -14,9 +14,8 @@ let villageData = {
     comfortForceRest: false,
     orderEventHalf: false,
     prosperityAll125: false,
-    // 士气预见相关状态
-    moraleForeseeDamage: null, // 预见到的下轮损耗属性
-    nextLossEvent: null,       // 预存的下轮损耗事件
+    moraleForeseeDamage: null,
+    nextLossEvent: null,
 };
 
 function getRandom(min, max) {
@@ -50,34 +49,39 @@ function updateProperty(property) {
 function addLog(text) {
     const logContainer = document.getElementById('logContainer');
     const time = new Date().toLocaleTimeString();
+    
+    // 处理高点数奖励（红色粗体）
+    if (text.includes('[高点数奖励]')) {
+        text = `<span class="font-bold text-red-600">${text}</span>`;
+    } else {
+        // 处理增加值（红色加粗）
+        text = text.replace(/\+(\d+)/g, '<span class="font-bold text-red-600">+$1</span>');
+        // 处理减少值（绿色加粗）
+        text = text.replace(/-(\d+)/g, '<span class="font-bold text-green-600">-$1</span>');
+    }
+    
     const logEntry = document.createElement('p');
     logEntry.className = 'log-entry';
-    logEntry.innerHTML = `<span>[${time}]</span> ${text}`;
+    logEntry.innerHTML = `<span class="text-gray-500">[${time}]</span> ${text}`;
     logContainer.insertBefore(logEntry, logContainer.firstChild);
     logContainer.scrollTop = 0;
 }
 
-// 检查士气是否达标并生成预见
+// 检查士气是否达标并生成预见（触发条件为>100）
 function checkMoraleForecast() {
-    // 只有当士气 > 100时才生成预见
     if (villageData.morale > 100) {
-        // 生成下轮事件池
         let eventPool = getEventPoolByRound(villageData.currentRound + 1);
-        // 随机选择一个事件作为下轮损耗事件
         villageData.nextLossEvent = eventPool[Math.floor(Math.random() * eventPool.length)];
         
-        // 排除暴风雨前兆（本身有单独预告）
         if (villageData.nextLossEvent.name !== '暴风雨的前兆') {
             villageData.moraleForeseeDamage = villageData.nextLossEvent.prop;
             addLog(`[士气预见] 下轮损耗事件将降低${getPropName(villageData.moraleForeseeDamage)}！`);
         } else {
-            // 暴风雨前兆单独处理
             const targetProps = ['morale', 'comfort', 'order', 'prosperity'];
             villageData.stormTargetProp = targetProps[Math.floor(Math.random() * targetProps.length)];
             addLog(`[士气预见] 下轮将出现暴风雨的前兆，后续会降低${getPropName(villageData.stormTargetProp)}！`);
         }
     } else {
-        // 士气不足100，清除预见
         villageData.moraleForeseeDamage = null;
         villageData.nextLossEvent = null;
     }
@@ -170,8 +174,8 @@ function chooseFixed(property) {
     villageData[property] += addValue;
     addLog(`[固定选择] 选择${getPropName(property)}，共增加${addValue}点（当前值：${villageData[property]}）`);
 
-    // 关键：只要士气 >= 100，立即生成下轮损耗预见
-    if (property === 'morale' || villageData.morale >= 100) {
+    // 关键：只有士气 > 100，才生成预见
+    if (property === 'morale' || villageData.morale > 100) {
         checkMoraleForecast();
     }
 
@@ -221,7 +225,7 @@ function checkSynergy(currentProp, addValue) {
         }
         
         // 连携后检查士气是否达标
-        if (villageData.morale + addValue >= 100) {
+        if (villageData.morale + addValue > 100) {
             checkMoraleForecast();
         }
     } 
@@ -337,7 +341,7 @@ function handlePropCapAndReduction() {
     if (villageData.morale > 100) {
         checkMoraleForecast();
     } else {
-        addLog(`[士气状态变化] 士气＜100→无法预见损耗事件属性`);
+        addLog(`[士气状态变化] 士气≤100→无法预见损耗事件属性`);
         villageData.moraleForeseeDamage = null;
         villageData.nextLossEvent = null;
     }
@@ -383,7 +387,7 @@ function chooseRandom() {
         addLog(`[随机事件] ${getRandomEventName(eventType)}→基础+${baseAdd}、120%效率+${bonus120}，共+${totalAdd}（当前：${villageData[eventType]}）`);
 
         // 关键：随机事件增加士气后检查是否达标
-        if (eventType === 'morale' || villageData.morale >= 100) {
+        if (eventType === 'morale' || villageData.morale > 100) {
             checkMoraleForecast();
         }
 
@@ -487,10 +491,10 @@ function showResult(message) {
 function restartGame() {
     villageData = {
         food: 80,
-        morale: getRandom(40, 60),
-        comfort: getRandom(40, 60),
-        order: getRandom(40, 60),
-        prosperity: getRandom(40, 60),
+        morale: getRandom(50, 70),
+        comfort: getRandom(50, 70),
+        order: getRandom(50, 70),
+        prosperity: getRandom(50, 70),
         currentRound: 1,
         hasStormDebuff: false,
         hasRestBonus: false,
@@ -511,5 +515,6 @@ function restartGame() {
 }
 
 // 初始化游戏
-updateUI();
+updateUI();     
+
      
