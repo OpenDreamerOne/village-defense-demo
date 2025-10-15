@@ -2,106 +2,178 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Demo 保卫村庄（优化版）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保卫村庄 - 策略生存游戏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="container">
-        <!-- 左侧：关键机制（去掉“见表1-1”） -->
-        <div class="left-panel">
-            <h2>核心规则</h2>
-            <div class="rule">
-                <h3>1. 属性连携关系</h3>
-                <img src="image.png" alt="属性连携图" style="max-width: 220px; margin: 10px 0;">
-                <p><small>（箭头/文字对应：促进=绿色，降低=红色）</small></p>
-            </div>
-            <div class="rule">
-                <h3>2. 关键机制</h3>
-                <p>• 每轮先选属性提升，再触发损耗事件</p>
-                <p>• 粮食每轮固定扣10点</p>
-                <p>• 暴风雨前兆：下轮扣除×225%（提前预告扣除属性）</p>
-                <p>• 属性＞100触发高点数奖励（见下方）</p>
-                <p>  - 粮食＞100：下轮固定选择促进率100%、降低率0%</p>
-                <p>  - 士气＞100：下轮繁荣收益×150%</p>
-                <p>  - 舒适＞100：下轮随机选择必定是养精蓄锐</p>
-                <p>  - 秩序＞100：下轮事件扣除减半</p>
-                <p>  - 繁荣＞100：下轮所有收益×125%</p>
-            </div>
-            <div class="rule">
-                <h3>3. 胜负条件</h3>
-                <p>胜利：15轮后所有属性＞0</p>
-                <p>失败：任意属性≤0</p>
-            </div>
-        </div>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-primary text-shadow">保卫村庄</h1>
+            <p class="text-gray-600 mt-2">平衡资源，应对危机，在15轮挑战中生存下来！</p>
+        </header>
 
-        <!-- 中间：固定选择按钮（补充连携说明） -->
-        <div class="middle-panel">
-            <div class="title">保卫村庄</div>
-            <div class="round">当前轮次：第 <span id="currentRound">1</span> / 15 轮</div>
-            
-            <!-- 属性条形图（不变） -->
-            <div class="property">
-                <div class="prop-name">粮食产出（基础80）：</div>
-                <div class="prop-value" id="food-value">80</div>
-                <div class="prop-chart">
-                    <div class="chart-fill" id="food-chart"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- 左侧规则面板 -->
+            <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-5">
+                <div class="rule mb-6">
+                    <h3 class="text-lg font-bold text-dark mb-3 flex items-center">
+                        <i class="fa fa-trophy mr-2 text-warning"></i>1. 胜负条件
+                    </h3>
+                    <p class="text-gray-700 mb-2">• 胜利：15轮后所有属性＞0</p>
+                    <p class="text-gray-700">• 失败：任意属性≤0</p>
                 </div>
-            </div>
-            <div class="property">
-                <div class="prop-name">士气（基础50-70）：</div>
-                <div class="prop-value" id="morale-value">0</div>
-                <div class="prop-chart">
-                    <div class="chart-fill" id="morale-chart"></div>
+                
+                <div class="rule mb-6">
+                    <h3 class="text-lg font-bold text-dark mb-3 flex items-center">
+                        <i class="fa fa-book mr-2 text-primary"></i>2. 关键规则
+                    </h3>
+                    <p class="text-gray-700 mb-2">• 初始基础值：粮食固定80，士气/舒适/秩序/繁荣随机50-70</p>
+                    <p class="text-gray-700 mb-2">• 每轮先选属性提升，再触发损耗事件</p>
+                    <p class="text-gray-700 mb-2">• 粮食每轮固定扣10点</p>
+                    <p class="text-gray-700 mb-2">• 暴风雨前兆：下轮扣除×200%（提前预告扣除属性）</p>
+                    <p class="text-gray-700">• 属性＞100触发高点数奖励：
+                        <ul class="list-disc list-inside ml-2 mt-1 text-sm text-gray-600">
+                            <li>粮食＞100：下轮固定选择促进率100%、降低率0%</li>
+                            <li>士气＞100：持续预见下轮损耗事件属性</li>
+                            <li>舒适＞100：下轮随机选择必定是养精蓄锐</li>
+                            <li>秩序＞100：下轮事件扣除减半</li>
+                            <li>繁荣＞100：下轮所有收益×125%</li>
+                        </ul>
+                    </p>
                 </div>
-            </div>
-            <div class="property">
-                <div class="prop-name">舒适（基础50-70）：</div>
-                <div class="prop-value" id="comfort-value">0</div>
-                <div class="prop-chart">
-                    <div class="chart-fill" id="comfort-chart"></div>
-                </div>
-            </div>
-            <div class="property">
-                <div class="prop-name">秩序（基础50-70）：</div>
-                <div class="prop-value" id="order-value">0</div>
-                <div class="prop-chart">
-                    <div class="chart-fill" id="order-chart"></div>
-                </div>
-            </div>
-            <div class="property">
-                <div class="prop-name">繁荣（基础50-70）：</div>
-                <div class="prop-value" id="prosperity-value">0</div>
-                <div class="prop-chart">
-                    <div class="chart-fill" id="prosperity-chart"></div>
+                
+                <div class="rule">
+                    <h3 class="text-lg font-bold text-dark mb-3 flex items-center">
+                        <i class="fa fa-exchange mr-2 text-secondary"></i>3. 属性连携关系
+                    </h3>
+                    <p class="text-gray-700 mb-2">• 粮食：士气概率+50%，舒适、秩序小概率-25%</p>
+                    <p class="text-gray-700 mb-2">• 士气：舒适概率+50%，舒适、秩序小概率-40%</p>
+                    <p class="text-gray-700 mb-2">• 舒适：秩序概率+50%，繁荣小概率-40%</p>
+                    <p class="text-gray-700 mb-2">• 秩序：繁荣概率+50%-65%，士气小概率-40%</p>
+                    <p class="text-gray-700">• 繁荣：粮食概率+65%（60%触发）</p>
                 </div>
             </div>
 
-            <!-- 固定选择（补充“促进/减少”说明） -->
-            <div class="choice-panel" id="choicePanel">
-                <div class="choice-title">固定选择（必选）：</div>
-                <button onclick="chooseFixed('food')">增加农田人力（粮食+40-60，60%连携增加士气，40%连携减少舒适、秩序）</button>
-                <button onclick="chooseFixed('morale')">鼓舞士气（士气+30-50，60%连携增加繁荣，40%连携减少舒适、秩序）</button>
-                <button onclick="chooseFixed('comfort')">分发消费品（舒适+30-50，60%连携增加秩序，40%连携减少繁荣）</button>
-                <button onclick="chooseFixed('order')">严格守夜（秩序+30-50，60%连携增加繁荣，40%连携减少士气）</button>
-                <button onclick="chooseFixed('prosperity')">商业活动（繁荣+30-50，60%连携促进粮食产出，无连携减少）</button>
+            <!-- 中间游戏面板 -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-5">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="text-lg font-semibold text-gray-700">
+                        当前轮次：<span id="currentRound" class="text-primary font-bold">1</span>/15
+                    </div>
+                    <button onclick="restartGame()" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-all-300 flex items-center">
+                        <i class="fa fa-refresh mr-2"></i>重新开始
+                    </button>
+                </div>
 
-                <!-- 随机选择（修复括号说明） -->
-                <div class="choice-title">随机选择（可选，每轮仅1次）：</div>
-                <button onclick="chooseRandom()">随机事件（25%几率养精蓄锐，75%几率任意属性提升[效率120%]）</button>
+                <!-- 属性面板 -->
+                <div class="space-y-5 mb-8">
+                    <div class="property">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="prop-name font-medium">粮食（固定80）：</div>
+                            <div class="prop-value font-bold" id="food-value">80</div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-fill" id="food-chart" style="width: 53%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="prop-name font-medium">士气（基础50-70）：</div>
+                            <div class="prop-value font-bold" id="morale-value">0</div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-fill" id="morale-chart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="prop-name font-medium">舒适（基础50-70）：</div>
+                            <div class="prop-value font-bold" id="comfort-value">0</div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-fill" id="comfort-chart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="prop-name font-medium">秩序（基础50-70）：</div>
+                            <div class="prop-value font-bold" id="order-value">0</div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-fill" id="order-chart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="prop-name font-medium">繁荣（基础50-70）：</div>
+                            <div class="prop-value font-bold" id="prosperity-value">0</div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-fill" id="prosperity-chart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 选择面板 -->
+                <div id="choicePanel" class="choice-panel">
+                    <h3 class="text-lg font-bold text-dark mb-4">请选择本轮行动：</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button onclick="chooseFixed('food')" class="tooltip bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 px-4 py-3 rounded-lg transition-all-300 text-left">
+                            增加农田人力（粮食+40-60）
+                            <span class="tooltiptext">连携：士气概率+50%，舒适、秩序小概率-25%</span>
+                        </button>
+                        
+                        <button onclick="chooseFixed('morale')" class="tooltip bg-green-50 hover:bg-green-100 text-green-800 border border-green-200 px-4 py-3 rounded-lg transition-all-300 text-left">
+                            军队训练（士气+30-50）
+                            <span class="tooltiptext">连携：舒适概率+50%，舒适、秩序小概率-40%</span>
+                        </button>
+                        
+                        <button onclick="chooseFixed('comfort')" class="tooltip bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 px-4 py-3 rounded-lg transition-all-300 text-left">
+                            改善居住（舒适+30-50）
+                            <span class="tooltiptext">连携：秩序概率+50%，繁荣小概率-40%</span>
+                        </button>
+                        
+                        <button onclick="chooseFixed('order')" class="tooltip bg-yellow-50 hover:bg-yellow-100 text-yellow-800 border border-yellow-200 px-4 py-3 rounded-lg transition-all-300 text-left">
+                            制定法规（秩序+30-50）
+                            <span class="tooltiptext">连携：繁荣概率+50%-65%，士气小概率-40%</span>
+                        </button>
+                        
+                        <button onclick="chooseFixed('prosperity')" class="tooltip bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 px-4 py-3 rounded-lg transition-all-300 text-left md:col-span-2">
+                            商业活动（繁荣+30-50）
+                            <span class="tooltiptext">连携：粮食概率+65%（60%触发）</span>
+                        </button>
+                        
+                        <button onclick="chooseRandom()" class="tooltip bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-200 px-4 py-3 rounded-lg transition-all-300 text-left md:col-span-2">
+                            随机事件（25%概率养精蓄锐）
+                            <span class="tooltiptext">可能触发：养精蓄锐或随机属性提升（效率120%）</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 结果面板 -->
+                <div id="resultPanel" class="result-panel hidden text-center py-8">
+                    <h2 id="resultTitle" class="text-2xl font-bold mb-6"></h2>
+                    <button onclick="restartGame()" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all-300 text-lg">
+                        再来一局
+                    </button>
+                </div>
             </div>
 
-            <!-- 结算面板（不变） -->
-            <div class="result-panel" id="resultPanel" style="display: none;">
-                <div id="resultTitle"></div>
-                <button onclick="restartGame()">重新开始</button>
-            </div>
-        </div>
-
-        <!-- 右侧：日志（不变） -->
-        <div class="right-panel">
-            <h2>游戏日志</h2>
-            <div id="logContainer" class="log-container">
-                <p class="log-entry">游戏开始！第1轮即将开始</p>
+            <!-- 右侧日志面板 -->
+            <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-5">
+                <h3 class="text-lg font-bold text-dark mb-3 flex items-center">
+                    <i class="fa fa-history mr-2 text-gray-500"></i>游戏日志
+                </h3>
+                <div id="logContainer" class="h-[calc(100vh-280px)] overflow-y-auto p-2 bg-gray-50 rounded-lg text-sm">
+                    <p class="log-entry">游戏开始！第1轮即将开始</p>
+                </div>
             </div>
         </div>
     </div>
@@ -109,3 +181,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
